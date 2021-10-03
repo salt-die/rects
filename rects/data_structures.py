@@ -19,35 +19,38 @@ class Rect(NamedTuple):
     size: Size
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self.size.height
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self.size.width
 
     @property
-    def topright(self):
+    def topright(self) -> Point:
         y, x = self.topleft
         _, w = self.size
 
         return Point(y, x + w)
 
     @property
-    def bottomleft(self):
+    def bottomleft(self) -> Point:
         y, x = self.topleft
         h, _ = self.size
 
         return Point(y + h, x)
 
     @property
-    def bottomright(self):
+    def bottomright(self) -> Point:
         y, x = self.topleft
         h, w = self.size
 
         return Point(y + h, x + w)
 
-    def __contains__(self, point: Point):
+    def __contains__(self, point: Point) -> bool:
+        """
+        Return true if point is contained in the rect.
+        """
         py, px = point
 
         y1, x1 = self.topleft
@@ -55,7 +58,22 @@ class Rect(NamedTuple):
 
         return y1 <= py <= y2 and x1 <= px <= x2
 
-    # TODO: intersects
+    def intersects(self, other) -> bool:
+        """
+        Return true if rect intersects with other.
+        """
+        self_top, self_left = self.topleft
+        self_bottom, self_right = self.bottomright
+
+        other_top, other_left = other.topleft
+        other_bottom, other_right = other.bottomright
+
+        return not (
+            self_top >= other_bottom
+            or other_top >= self_bottom
+            or self_left >= other_right
+            or other_left >= self_right
+        )
 
 
 class Band(NamedTuple):
