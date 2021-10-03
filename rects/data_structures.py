@@ -10,15 +10,6 @@ class Point(NamedTuple):
     y: int
     x: int
 
-    def __add__(self, other: Size):
-        if not isinstance(other, Size):
-            return NotImplemented
-
-        y, x = self
-        h, w = other
-
-        return Point(y + h, x + w)
-
 
 class Rect(NamedTuple):
     """
@@ -37,21 +28,24 @@ class Rect(NamedTuple):
 
     @property
     def topright(self):
-        return Point(
-            self.topleft.y,
-            self.topleft.x + self.width,
-        )
+        y, x = self.topleft
+        _, w = self.size
+
+        return Point(y, x + w)
 
     @property
     def bottomleft(self):
-        return Point(
-            self.topleft.y + self.height,
-            self.topleft.x,
-        )
+        y, x = self.topleft
+        h, _ = self.size
+
+        return Point(y + h, x)
 
     @property
     def bottomright(self):
-        return self.topleft + self.size
+        y, x = self.topleft
+        h, w = self.size
+
+        return Point(y + h, x + w)
 
     def __contains__(self, point: Point):
         py, px = point
