@@ -104,3 +104,9 @@ class Band(NamedTuple):
         Number of rects in the band.
         """
         return len(self.walls) // 2
+
+    def __lt__(self, other):
+        if not isinstance(other, Band):
+            return NotImplemented
+
+        return self.bottom < other.bottom if self.top == other.top else self.top < other.top
