@@ -109,4 +109,4 @@ class Band(NamedTuple):
         if not isinstance(other, Band):
             return NotImplemented
 
-        return self.bottom < other.bottom if self.top == other.top else self.top < other.top
+        return (self.top, self.bottom) < (other.top, other.bottom)
