@@ -15,10 +15,7 @@ class Interval(NamedTuple):
         if not isinstance(other, Interval):
             return NotImplemented
 
-        start, stop = self
-        o_start, o_stop = other
-
-        return start <= o_start < stop or o_start <= start < stop
+        return other.start in self or self.start in other
 
 
 class Rect(NamedTuple):
