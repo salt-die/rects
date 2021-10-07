@@ -2,6 +2,9 @@ from typing import NamedTuple
 
 
 class Interval(NamedTuple):
+    """
+    A continuous interval.
+    """
     start: int
     stop: int
 
@@ -20,7 +23,7 @@ class Interval(NamedTuple):
 
 class Rect(NamedTuple):
     """
-    A rect is a cross product of two intervals.
+    A cross product of two intervals.
     """
     topbottom: Interval
     leftright: Interval
@@ -55,7 +58,7 @@ class Rect(NamedTuple):
 
 class Band(NamedTuple):
     """
-    A band is a horizontal interval and a list of walls.
+    A vertical interval and a list of walls.
     """
     topbottom: Interval
     walls: list[int]
@@ -70,6 +73,13 @@ class Band(NamedTuple):
         it = iter(self.walls)
         for left, right in zip(it, it):
             yield Rect(topbottom, Interval(left, right))
+
+    @property
+    def extents(self):
+        """
+        Bounding rect of entire band.
+        """
+        return Rect(self.topbottom, Interval(walls[0], walls[-1]))
 
     def __len__(self):
         """
