@@ -1,87 +1,66 @@
 from typing import NamedTuple
 
 
-class Size(NamedTuple):
-    height: int
-    width: int
+class Interval(NamedTuple):
+    start: int
+    stop: int
 
+    def __contains__(self, other: int):
+        if not isinstance(other, int):
+            return NotImplemented
 
-class Point(NamedTuple):
-    y: int
-    x: int
+        return self.start <= other < self.stop
+
+    def intersects(self, other):
+        if not isinstance(other, Interval):
+            return NotImplemented
+
+        start, stop = self
+        o_start, o_stop = other
+
+        return start <= o_start < stop or o_start <= start < stop
 
 
 class Rect(NamedTuple):
     """
-    A rect is a rectangular region specified with a point and a size.
+    A rect is a cross product of two intervals.
     """
-    topleft: Point
-    size: Size
+    topbottom: Interval
+    leftright: Interval
 
     @property
     def height(self) -> int:
-        return self.size.height
+        top, bottom = self.topbottom
+        return bottom - top
 
     @property
     def width(self) -> int:
-        return self.size.width
+        left, right = self.leftright
+        return right - left
 
-    @property
-    def topright(self) -> Point:
-        y, x = self.topleft
-        _, w = self.size
-
-        return Point(y, x + w)
-
-    @property
-    def bottomleft(self) -> Point:
-        y, x = self.topleft
-        h, _ = self.size
-
-        return Point(y + h, x)
-
-    @property
-    def bottomright(self) -> Point:
-        y, x = self.topleft
-        h, w = self.size
-
-        return Point(y + h, x + w)
-
-    def __contains__(self, point: Point) -> bool:
+    def __contains__(self, point) -> bool:
         """
         Return true if point is contained in the rect.
         """
         py, px = point
 
-        y1, x1 = self.topleft
-        y2, x2 = self.bottomright
-
-        return y1 <= py <= y2 and x1 <= px <= x2
+        return py in self.topbottom and px in self.leftright
 
     def intersects(self, other) -> bool:
         """
         Return true if rect intersects with other.
         """
-        self_top, self_left = self.topleft
-        self_bottom, self_right = self.bottomright
-
-        other_top, other_left = other.topleft
-        other_bottom, other_right = other.bottomright
-
-        return not (
-            self_top >= other_bottom
-            or other_top >= self_bottom
-            or self_left >= other_right
-            or other_left >= self_right
+        return (
+            self.topbottom.intersects(other.topbottom)
+            and self.leftright.intersects(other.leftright)
         )
 
 
 class Band(NamedTuple):
     """
-    A band is a horizontal region (with a top/bottom) and a list of walls.
+    A band is a horizontal interval and a list of walls.
     """
-    top: int
-    bottom: int
+    topbottom: Interval
     walls: list[int]
 
     @property
@@ -89,15 +68,11 @@ class Band(NamedTuple):
         """
         Yield the Rects that make up the band.
         """
-        top = self.top
-        height = self.bottom - top
+        topbottom = self.topbottom
 
         it = iter(self.walls)
-        for x1, x2 in zip(it, it):
-            yield Rect(
-                Point(top, x1),
-                Size(height, x2 - x1),
-            )
+        for left, right in zip(it, it):
+            yield Rect(topbottom, Interval(left, right))
 
     def __len__(self):
         """
@@ -109,4 +84,4 @@ class Band(NamedTuple):
         if not isinstance(other, Band):
             return NotImplemented
 
-        return (self.top, self.bottom) < (other.top, other.bottom)
+        return self.topbottom < other.topbottom
