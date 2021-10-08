@@ -8,6 +8,10 @@ class Interval(NamedTuple):
     start: int
     stop: int
 
+    @property
+    def measure(self):
+        return self.stop - self.start
+
     def __contains__(self, other: int):
         if not isinstance(other, int):
             return NotImplemented
@@ -30,13 +34,11 @@ class Rect(NamedTuple):
 
     @property
     def height(self) -> int:
-        top, bottom = self.topbottom
-        return bottom - top
+        return self.topbottom.measure
 
     @property
     def width(self) -> int:
-        left, right = self.leftright
-        return right - left
+        return self.leftright.measure
 
     def __contains__(self, point) -> bool:
         """
