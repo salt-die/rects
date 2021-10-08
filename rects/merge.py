@@ -25,12 +25,11 @@ class Walls:
         return self.wall < other.wall
 
     def __next__(self):
-        wall = self.wall
-
-        self.inside = not self.inside
-        self.wall = next(self.iterable, None)
-
-        return wall
+        try:
+            return self.wall
+        finally:
+            self.inside ^= True
+            self.wall = next(self.iterable, None)
 
 
 def merge(a, b):
