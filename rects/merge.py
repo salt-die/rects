@@ -24,12 +24,9 @@ class Walls:
     def __lt__(self, other):
         return self.wall < other.wall
 
-    def __next__(self):
-        try:
-            return self.wall
-        finally:
-            self.inside ^= True
-            self.wall = next(self.iterable, None)
+    def next_wall(self):
+        self.inside ^= True
+        self.wall = next(self.iterable, None)
 
 
 def merge(a, b):
@@ -43,13 +40,15 @@ def merge(a, b):
         wall = min(a, b).wall
 
         if a.wall == wall:
-            next(a)
+            a.next_wall()
 
         if b.wall == wall:
-            next(b)
+            b.next_wall()
 
         yield ScanState(wall, a.inside, b.inside)
 
     c = a or b
     while c:
-        yield ScanState(next(c), a.inside, b.inside)
+        wall = c.wall
+        c.next_wall()
+        yield ScanState(wall, a.inside, b.inside)
