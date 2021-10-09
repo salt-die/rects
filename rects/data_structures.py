@@ -94,3 +94,12 @@ class Band(NamedTuple):
             return NotImplemented
 
         return self.topbottom < other.topbottom
+
+    def split(self, n: int):
+        """
+        Split band along the horizontal line at n.
+        """
+        top, bottom = self.topbottom
+        self.topbottom = Interval(top, n)
+
+        return self, Band(Interval(n, bottom), self.walls.copy())
