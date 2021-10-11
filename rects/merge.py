@@ -13,10 +13,10 @@ class Walls:
     def __init__(self, iterable):
         self.iterable = iter(iterable)
 
-        self.inside = True  # Sets to false on first __next__ call.
+        self.inside = True
         self.wall = None
 
-        next(self)
+        self.next_wall()
 
     def __bool__(self):
         return self.wall is not None
