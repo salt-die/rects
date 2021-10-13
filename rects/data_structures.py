@@ -103,3 +103,23 @@ class Band(NamedTuple):
         self.topbottom = Interval(top, n)
 
         return self, Band(Interval(n, bottom), self.walls.copy())
+
+
+class Region:
+    """
+    Collection of mutually exclusive bands.
+    """
+    def __init__(self, *bands):
+        self.bands = list(bands)
+
+    def __and__(self, other: Rect):
+        raise NotImplementedError()
+
+    def __or__(self, other: Rect):
+        raise NotImplementedError()
+
+    def __sub__(self, other: Rect):
+        raise NotImplementedError()
+
+    def __xor__(self, other: Rect):
+        raise NotImplementedError()
