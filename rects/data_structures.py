@@ -115,11 +115,23 @@ class Region:
     def __and__(self, other: Rect):
         raise NotImplementedError()
 
+    def __iand__(self, other: Rect):
+        raise NotImplementedError()
+
     def __or__(self, other: Rect):
+        raise NotImplementedError()
+
+    def __ior__(self, other: Rect):
         raise NotImplementedError()
 
     def __sub__(self, other: Rect):
         raise NotImplementedError()
 
+    def __isub__(self, other: Rect):
+        raise NotImplementedError()
+
     def __xor__(self, other: Rect):
+        raise NotImplementedError()
+
+    def __ixor__(self, other:Rect):
         raise NotImplementedError()
