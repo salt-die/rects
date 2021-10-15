@@ -2,53 +2,44 @@ from typing import NamedTuple
 
 
 class ScanState(NamedTuple):
-    wall: int
+    threshold: int
     in_a: bool
     in_b: bool
-
-
-class Walls:
-    __slots__ = 'iterable', 'inside', 'wall'
-
-    def __init__(self, iterable):
-        self.iterable = iter(iterable)
-
-        self.inside = True
-        self.wall = None
-
-        self.next_wall()
-
-    def __bool__(self):
-        return self.wall is not None
-
-    def __lt__(self, other):
-        return self.wall < other.wall
-
-    def next_wall(self):
-        self.inside ^= True
-        self.wall = next(self.iterable, None)
-
 
 def merge(a, b):
     """
     Emit in/out signals whenever a threshold is crossed.
     """
-    a = Walls(a)
-    b = Walls(b)
+    a = iter(a)
+    b = iter(b)
 
-    while a and b:
-        wall = min(a, b).wall
+    current_a = next(a, None)
+    current_b = next(b, None)
 
-        if a.wall == wall:
-            a.next_wall()
+    inside_a = False
+    inside_b = False
 
-        if b.wall == wall:
-            b.next_wall()
+    while current_a is not None and current_b is not None:
+        threshold = min(current_a, current_b)
 
-        yield ScanState(wall, a.inside, b.inside)
+        if current_a == threshold:
+            current_a = next(a, None)
+            inside_a ^= True
 
-    c = a or b
-    while c:
-        wall = c.wall
-        c.next_wall()
-        yield ScanState(wall, a.inside, b.inside)
+        if current_b == threshold:
+            current_b = next(b, None)
+            inside_b ^= True
+
+        yield ScanState(threshold, inside_a, inside_b)
+
+    if current_a is not None:
+        while current_a:
+            inside_a ^= True
+            yield ScanState(current_a, inside_a, inside_b)
+            current_a = next(a, None)
+
+    elif current_b is not None:
+        while current_b:
+            inside_b ^= True
+            yield ScanState(current_b, inside_a, inside_b)
+            current_b = next(a, None)
