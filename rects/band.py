@@ -23,7 +23,7 @@ class Band(NamedTuple):
             yield Rect(topbottom, Interval(left, right))
 
     @property
-    def extents(self):
+    def bounds(self):
         """
         Bounding rect of entire band.
         """
