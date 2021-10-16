@@ -9,20 +9,23 @@ class Interval(NamedTuple):
     stop: int
 
     @property
-    def measure(self):
+    def length(self):
         return self.stop - self.start
 
     def __contains__(self, other: int):
-        if not isinstance(other, int):
-            return NotImplemented
-
         return self.start <= other < self.stop
 
     def intersects(self, other):
-        if not isinstance(other, Interval):
-            return NotImplemented
-
+        """
+        Return true if two intervals intersect.
+        """
         return other.start in self or self.start in other
+
+    def joins(self, other):
+        """
+        Return true if union of two intervals is a single interval.
+        """
+        return other.end == self.start or self.intersects(other)
 
 
 class Rect(NamedTuple):
@@ -34,11 +37,11 @@ class Rect(NamedTuple):
 
     @property
     def height(self) -> int:
-        return self.topbottom.measure
+        return self.topbottom.length
 
     @property
     def width(self) -> int:
-        return self.leftright.measure
+        return self.leftright.length
 
     def __contains__(self, point) -> bool:
         """
