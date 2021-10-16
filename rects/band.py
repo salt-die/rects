@@ -1,6 +1,6 @@
 from typing import NamedTuple
 
-from .data_structures import Interval, Rect, Operation
+from .data_structures import Interval, Rect
 from .merge import merge
 
 
@@ -36,19 +36,17 @@ class Band(NamedTuple):
         return len(self.walls) // 2
 
     def __lt__(self, other):
-        if not isinstance(other, Band):
-            return NotImplemented
-
         return self.topbottom < other.topbottom
 
     def split(self, n: int):
         """
-        Split band along the horizontal line at n.
+        Split band along the horizontal line at n. Band's topbottom is modified to be the
+        upper portion of the split. A new band is return for the bottom portion of the split.
         """
         top, bottom = self.topbottom
         self.topbottom = Interval(top, n)
 
-        return self, Band(Interval(n, bottom), self.walls.copy())
+        return Band(Interval(n, bottom), self.walls.copy())
 
     def __or__(self, other):
         """
