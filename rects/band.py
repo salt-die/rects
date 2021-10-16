@@ -41,7 +41,7 @@ class Band(NamedTuple):
     def split(self, n: int):
         """
         Split band along the horizontal line at n. Band's topbottom is modified to be the
-        upper portion of the split. A new band is return for the bottom portion of the split.
+        upper portion of the split. A new band is returned for the bottom portion of the split.
         """
         top, bottom = self.topbottom
         self.topbottom = Interval(top, n)
