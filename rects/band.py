@@ -1,31 +1,7 @@
-from textwrap import dedent
 from typing import NamedTuple
 
-from .data_structures import Interval, Rect
+from .data_structures import Interval, Rect, Operation
 from .merge import merge
-
-def _operation_factory(symbol, docstring):
-    """
-    Produces one of the set methods for a Band.
-
-    `exec` is used instead of a passed in function to reduce function calls.
-    """
-    code = f"""
-        def op(self, other):
-            assert self.topbottom == other.topbottom
-
-            new_walls = [ ]
-            inside_region = False
-            for threshold, inside_self, inside_other in merge(self.walls, other.walls):
-                if (inside_self {symbol} inside_other) != inside_region:
-                    new_walls.append(threshold)
-                    inside_region ^= True
-
-            return Band(self.topbottom, new_walls)
-    """
-    exec(dedent(code), globals(), loc := { })
-    loc['op'].__doc__ = docstring
-    return loc['op']
 
 
 class Band(NamedTuple):
@@ -74,7 +50,38 @@ class Band(NamedTuple):
 
         return self, Band(Interval(n, bottom), self.walls.copy())
 
-    __or__ = _operation_factory('or', 'Union of two bands.')
-    __and__ = _operation_factory('and', 'Intersection of two bands.')
-    __xor__ = _operation_factory('^', 'Xor of two bands.')
-    __sub__ = _operation_factory('and not', 'Xor of two bands.')
+    def __or__(self, other):
+        """
+        Union of two bands.
+        """
+        return Band(
+            self.topbottom,
+            merge(self.walls, other.walls, lambda a, b: a or b),
+        )
+
+    def __and__(self, other):
+        """
+        Intersection of two bands.
+        """
+        return Band(
+            self.topbottom,
+            merge(self.walls, other.walls, lambda a, b: a and b),
+        )
+
+    def __xor__(self, other):
+        """
+        Xor of two bands.
+        """
+        return Band(
+            self.topbottom,
+            merge(self.walls, other.walls, lambda a, b: a ^ b),
+        )
+
+    def __sub__(self, other):
+        """
+        Subtraction of two bands.
+        """
+        return Band(
+            self.topbottom,
+            merge(self.walls, other.walls, lambda a, b: a and not b),
+        )
