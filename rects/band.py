@@ -27,6 +27,7 @@ class Band(NamedTuple):
         """
         Bounding rect of entire band.
         """
+        walls = self.walls
         return Rect(self.topbottom, Interval(walls[0], walls[-1]))
 
     def __len__(self):
