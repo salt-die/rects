@@ -1,3 +1,4 @@
+from math import inf
 from typing import NamedTuple
 
 from .data_structures import Interval, Rect
@@ -84,3 +85,6 @@ class Band(NamedTuple):
             self.topbottom,
             merge(self.walls, other.walls, lambda a, b: a and not b),
         )
+
+
+INF_BAND = Band(Interval(-inf, inf), (-inf, inf))
