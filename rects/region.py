@@ -1,9 +1,13 @@
+from .band import Band, INF_BAND
+from .data_structures import Rect
+
+
 class Region:
     """
     Collection of mutually exclusive bands.
     """
-    def __init__(self, *bands):
-        self.bands = list(bands)
+    def __init__(self):
+        self.bands = [ INF_BAND ]
 
     def __and__(self, other: Rect):
         raise NotImplementedError()
@@ -26,5 +30,10 @@ class Region:
     def __xor__(self, other: Rect):
         raise NotImplementedError()
 
-    def __ixor__(self, other:Rect):
+    def __ixor__(self, other: Rect):
         raise NotImplementedError()
+
+    def _coalesce(self):
+        """
+        Join contiguous bands that have identical walls.
+        """
