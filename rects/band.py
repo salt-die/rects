@@ -1,16 +1,24 @@
-from math import inf
-from typing import NamedTuple
-
 from .data_structures import Interval, Rect
 from .merge import merge
 
 
-class Band(NamedTuple):
+class Band:
     """
     A vertical interval and a list of walls.
     """
-    topbottom: Interval
-    walls: list[int]
+    __slots__ = 'topbottom', 'walls'
+
+    def __init__(self, topbottom: Interval, walls: list[int]):
+        self.topbottom = topbottom
+        self.walls = walls
+
+    @property
+    def top(self):
+        return self.topbottom.start
+
+    @property
+    def bottom(self):
+        return self.topbottom.stop
 
     @property
     def rects(self):
@@ -86,5 +94,9 @@ class Band(NamedTuple):
             merge(self.walls, other.walls, lambda a, b: a and not b),
         )
 
-
-INF_BAND = Band(Interval(-inf, inf), (-inf, inf))
+    def __repr__(self):
+        attrs = ', '.join(
+            f'{attr}={getattr(self, attr)}'
+            for attr in self.__slots__
+        )
+        return f'{type(self).__name__}({attrs})'
