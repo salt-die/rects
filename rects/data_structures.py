@@ -25,7 +25,11 @@ class Interval(NamedTuple):
         """
         Return true if union of two intervals is a single interval.
         """
-        return other.end == self.start or self.intersects(other)
+        return (
+            self.intersects(other)
+            or other.end == self.start
+            or self.end == other.start
+        )
 
 
 class Rect(NamedTuple):
