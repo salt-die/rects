@@ -41,10 +41,20 @@ class Region:
         """
         Join contiguous bands that have identical walls.
         """
+        bands = self.bands
+
+        i = 0
+        while i < len(bands) - 1:
+            a, b = bands[i], bands[i + 1]
+            if a.topbottom.joins(b.topbottom) and a.walls == b.walls:
+                a.topbottom = Interval(a.top, b.bottom)
+                bands.pop(i + 1)
+            else:
+                i += 1
 
     def _reband(self, rect: Rect):
         """
-        Adjust band topbottom intervals to accomodate rect.
+        Adjust band topbottom intervals to accomodate rect and return bands that cover rect.
         """
         bands = self.bands
         rect_bands = [ rect_band ] = [ Band(rect.topbottom, [*rect.leftright]) ]
@@ -58,14 +68,15 @@ class Region:
             elif band.topbottom.in_interior(rect_band.bottom):
                 bands.insert(i + 1, band.split(rect_band.bottom))
             elif rect_band.topbottom.in_interior(band.top):
-                rect_band = rect_band.split(band.top)
-                rect_bands.append(rect_band)
+                rect_bands.append(rect_band := rect_band.split(band.top))
             elif rect_band.topbottom.in_interior(band.bottom):
-                rect_band = rect_band.split(band.top)
-                rect_bands.append(rect_band)
+                rect_bands.append(rect_band := rect_band.split(band.bottom))
+            elif band.top >= rect_band.bottom:
+                break
 
             i += 1
 
+        # TODO: Return Intersecting bands.
         return rect_bands
 
     def __repr__(self):
