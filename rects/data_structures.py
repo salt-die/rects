@@ -15,6 +15,9 @@ class Interval(NamedTuple):
     def __contains__(self, other: int):
         return self.start <= other < self.stop
 
+    def in_interior(self, other: int):
+        return self.start < other < self.stop
+
     def intersects(self, other):
         """
         Return true if two intervals intersect.
