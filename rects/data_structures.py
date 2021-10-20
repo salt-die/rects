@@ -30,8 +30,8 @@ class Interval(NamedTuple):
         """
         return (
             self.intersects(other)
-            or other.end == self.start
-            or self.end == other.start
+            or self.start == other.stop
+            or self.stop == other.start
         )
 
 
