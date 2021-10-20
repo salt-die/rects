@@ -48,22 +48,21 @@ class Region:
         """
         bands = self.bands
         rect_bands = [ rect_band ] = [ Band(rect.topbottom, [*rect.leftright]) ]
-        top, bottom = rect_band.topbottom
 
         i = 0
         while i < len(bands):
             band = bands[i]
 
-            if top != band.top and top in band.topbottom:
-                bands.insert(i + 1, band.split(top))
-            elif bottom != band.top and bottom in band.topbottom:
-                bands.insert(i + 1, band.split(bottom))
-            elif band.top != top and band.top in rect_band.topbottom:
-                rect_bands[-1:] = [rect_band] = [rect_band.split(band.top)]
-                top, bottom = rect_band.topbottom
-            elif band.bottom != top and band.bottom in rect_band.topbottom:
-                rect_bands[-1:] = [rect_band] = [rect_band.split(band.bottom)]
-                top, bottom = rect_band.topbottom
+            if band.topbottom.in_interior(rect_band.top):
+                bands.insert(i + 1, band.split(rect_band.top))
+            elif band.topbottom.in_interior(rect_band.bottom):
+                bands.insert(i + 1, band.split(rect_band.bottom))
+            elif rect_band.topbottom.in_interior(band.top):
+                rect_band = rect_band.split(band.top)
+                rect_bands.append(rect_band)
+            elif rect_band.topbottom.in_interior(band.bottom):
+                rect_band = rect_band.split(band.top)
+                rect_bands.append(rect_band)
 
             i += 1
 
