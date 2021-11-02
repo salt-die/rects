@@ -1,5 +1,3 @@
-from math import inf
-
 def merge(a, b, operation):
     """
     Merge two lists of (sorted endpoints of) intervals given a
@@ -12,25 +10,42 @@ def merge(a, b, operation):
     a = iter(a)
     b = iter(b)
 
-    current_a = next(a, inf)
-    current_b = next(b, inf)
-    threshold = min(current_a, current_b)
+    current_a = next(a, None)
+    current_b = next(b, None)
 
     walls = [ ]
 
-    while threshold != inf:
+    while current_a is not None and current_b is not None:
+        threshold = min(current_a, current_b)
+
         if current_a == threshold:
             inside_a ^= True
-            current_a = next(a, inf)
+            current_a = next(a, None)
 
         if current_b == threshold:
             inside_b ^= True
-            current_b = next(b, inf)
+            current_b = next(b, None)
 
         if operation(inside_a, inside_b) != inside_region:
             inside_region ^= True
             walls.append(threshold)
 
-        threshold = min(current_a, current_b)
+    while current_a is not None:
+        inside_a ^= True
+
+        if operation(inside_a, inside_b) != inside_region:
+            inside_region ^= True
+            walls.append(current_a)
+
+        current_a = next(a, None)
+
+    while current_b is not None:
+        inside_b ^= True
+
+        if operation(inside_a, inside_b) != inside_region:
+            inside_region ^= True
+            walls.append(current_b)
+
+        current_b = next(b, None)
 
     return walls
