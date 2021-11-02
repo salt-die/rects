@@ -1,7 +1,9 @@
 from math import inf
 
-from .band import Band, EMPTY_BAND
+from .band import Band
 from .data_structures import Rect, Interval
+
+_EMPTY_BAND = Band(topbottom=Interval(inf, inf), walls=[])
 
 
 class Region:
@@ -140,22 +142,22 @@ class Region:
         a = iter(self.bands)
         b = iter(bands)
 
-        current_a = next(a, EMPTY_BAND)
-        current_b = next(b, EMPTY_BAND)
+        current_a = next(a, _EMPTY_BAND)
+        current_b = next(b, _EMPTY_BAND)
 
         merged = [ ]
 
-        while current_a is not EMPTY_BAND or current_b is not EMPTY_BAND:
+        while current_a is not _EMPTY_BAND or current_b is not _EMPTY_BAND:
             if current_a < current_b:
-                merged.append(operation(current_a, EMPTY_BAND))
-                current_a = next(a, EMPTY_BAND)
+                merged.append(operation(current_a, _EMPTY_BAND))
+                current_a = next(a, _EMPTY_BAND)
             elif current_b < current_a:
-                merged.append(operation(current_b, EMPTY_BAND))
-                current_b = next(b, EMPTY_BAND)
+                merged.append(operation(current_b, _EMPTY_BAND))
+                current_b = next(b, _EMPTY_BAND)
             else:
                 merged.append(operation(current_a, current_b))
-                current_a = next(a, EMPTY_BAND)
-                current_b = next(b, EMPTY_BAND)
+                current_a = next(a, _EMPTY_BAND)
+                current_b = next(b, _EMPTY_BAND)
 
         return merged
 

@@ -1,5 +1,3 @@
-from math import inf
-
 from .data_structures import Interval, Rect
 from .merge import merge
 
@@ -102,6 +100,3 @@ class Band:
             for attr in self.__slots__
         )
         return f'{type(self).__name__}({attrs})'
-
-
-EMPTY_BAND = Band(topbottom=Interval(inf, inf), walls=[])
