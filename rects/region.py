@@ -1,6 +1,6 @@
 from math import inf
 
-from .band import Band
+from .band import Band, EMPTY_BAND
 from .data_structures import Rect, Interval
 
 
@@ -10,32 +10,77 @@ class Region:
     """
     __slots__ = 'bands',
 
-    def __init__(self):
-        self.bands: list[Band] = [ Band(Interval(-inf, inf), [-inf, inf]) ]
+    def __init__(self, bands: list[Band] | None=None):
+        self.bands = bands or [ Band(Interval(-inf, inf), [-inf, inf]) ]
+        self._coalesce()
 
-    def __and__(self, other: Rect):
-        raise NotImplementedError()
+    def __and__(self, rect: Rect):
+        rect_bands = self._reband(rect)
+        self._coalesce()
 
-    def __iand__(self, other: Rect):
-        raise NotImplementedError()
+        return Region(
+            self._merge(rect_bands, lambda a, b: a & b)
+        )
 
-    def __or__(self, other: Rect):
-        raise NotImplementedError()
+    def __iand__(self, rect: Rect):
+        self.bands = self._merge(
+            self._reband(rect),
+            lambda a, b: a & b,
+        )
+        self._coalesce()
 
-    def __ior__(self, other: Rect):
-        raise NotImplementedError()
+        return self
 
-    def __sub__(self, other: Rect):
-        raise NotImplementedError()
+    def __or__(self, rect: Rect):
+        rect_bands = self._reband(rect)
+        self._coalesce()
 
-    def __isub__(self, other: Rect):
-        raise NotImplementedError()
+        return Region(
+            self._merge(rect_bands, lambda a, b: a | b)
+        )
 
-    def __xor__(self, other: Rect):
-        raise NotImplementedError()
+    def __ior__(self, rect: Rect):
+        self.bands = self._merge(
+            self._reband(rect),
+            lambda a, b: a | b,
+        )
+        self._coalesce()
 
-    def __ixor__(self, other: Rect):
-        raise NotImplementedError()
+        return self
+
+    def __sub__(self, rect: Rect):
+        rect_bands = self._reband(rect)
+        self._coalesce()
+
+        return Region(
+            self._merge(rect_bands, lambda a, b: a - b)
+        )
+
+    def __isub__(self, rect: Rect):
+        self.bands = self._merge(
+            self._reband(rect),
+            lambda a, b: a - b,
+        )
+        self._coalesce()
+
+        return self
+
+    def __xor__(self, rect: Rect):
+        rect_bands = self._reband(rect)
+        self._coalesce()
+
+        return Region(
+            self._merge(rect_bands, lambda a, b: a ^ b)
+        )
+
+    def __ixor__(self, rect: Rect):
+        self.bands = self._merge(
+            self._reband(rect),
+            lambda a, b: a ^ b,
+        )
+        self._coalesce()
+
+        return self
 
     def _coalesce(self):
         """
@@ -57,7 +102,7 @@ class Region:
         Adjust band topbottom intervals to accomodate rect and return bands that cover rect.
         """
         bands = self.bands
-        rect_bands = [ rect_band ] = [ Band(rect.topbottom, [*rect.leftright]) ]
+        rect_bands = [ rect_band ] = [ Band(rect.topbottom, walls=[*rect.leftright]) ]
 
         i = 0
         while i < len(bands):
@@ -76,8 +121,36 @@ class Region:
 
             i += 1
 
-        # TODO: Return Intersecting bands.
         return rect_bands
+
+    def _merge(self, bands, operation):
+        a = iter(self.bands)
+        b = iter(bands)
+
+        current_a = next(a, EMPTY_BAND)
+        current_b = next(b, EMPTY_BAND)
+
+        bands = [ ]
+
+        while current_a is not EMPTY_BAND and current_b is not EMPTY_BAND:
+            if current_a < current_b:
+                bands.append(operation(current_a, EMPTY_BAND))
+                current_a = next(a, EMPTY_BAND)
+            elif current_b < current_a:
+                bands.append(operation(current_b, EMPTY_BAND))
+                current_b = next(b, EMPTY_BAND)
+            else:
+                bands.append(operation(current_a, current_b))
+
+        while current_a is not EMPTY_BAND:
+            bands.append(operation(current_a, EMPTY_BAND))
+            current_a = next(a, EMPTY_BAND)
+
+        while current_b is not EMPTY_BAND:
+            bands.append(operation(current_b, EMPTY_BAND))
+            current_b = next(b, EMPTY_BAND)
+
+        return bands
 
     def __repr__(self):
         attrs = ', '.join(
