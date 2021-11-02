@@ -16,11 +16,15 @@ class Region:
 
     def __and__(self, rect: Rect):
         rect_bands = self._reband(rect)
-        self._coalesce()
 
-        return Region(
+        r = Region(
             self._merge(rect_bands, lambda a, b: a & b)
         )
+
+        self._coalesce()
+
+        return r
+
 
     def __iand__(self, rect: Rect):
         self.bands = self._merge(
@@ -33,11 +37,14 @@ class Region:
 
     def __or__(self, rect: Rect):
         rect_bands = self._reband(rect)
-        self._coalesce()
 
-        return Region(
+        r = Region(
             self._merge(rect_bands, lambda a, b: a | b)
         )
+
+        self._coalesce()
+
+        return r
 
     def __ior__(self, rect: Rect):
         self.bands = self._merge(
@@ -50,11 +57,14 @@ class Region:
 
     def __sub__(self, rect: Rect):
         rect_bands = self._reband(rect)
-        self._coalesce()
 
-        return Region(
+        r =  Region(
             self._merge(rect_bands, lambda a, b: a - b)
         )
+
+        self._coalesce()
+
+        return r
 
     def __isub__(self, rect: Rect):
         self.bands = self._merge(
@@ -67,11 +77,14 @@ class Region:
 
     def __xor__(self, rect: Rect):
         rect_bands = self._reband(rect)
-        self._coalesce()
 
-        return Region(
+        r = Region(
             self._merge(rect_bands, lambda a, b: a ^ b)
         )
+
+        self._coalesce()
+
+        return r
 
     def __ixor__(self, rect: Rect):
         self.bands = self._merge(
@@ -130,27 +143,21 @@ class Region:
         current_a = next(a, EMPTY_BAND)
         current_b = next(b, EMPTY_BAND)
 
-        bands = [ ]
+        merged = [ ]
 
-        while current_a is not EMPTY_BAND and current_b is not EMPTY_BAND:
+        while current_a is not EMPTY_BAND or current_b is not EMPTY_BAND:
             if current_a < current_b:
-                bands.append(operation(current_a, EMPTY_BAND))
+                merged.append(operation(current_a, EMPTY_BAND))
                 current_a = next(a, EMPTY_BAND)
             elif current_b < current_a:
-                bands.append(operation(current_b, EMPTY_BAND))
+                merged.append(operation(current_b, EMPTY_BAND))
                 current_b = next(b, EMPTY_BAND)
             else:
-                bands.append(operation(current_a, current_b))
+                merged.append(operation(current_a, current_b))
+                current_a = next(a, EMPTY_BAND)
+                current_b = next(b, EMPTY_BAND)
 
-        while current_a is not EMPTY_BAND:
-            bands.append(operation(current_a, EMPTY_BAND))
-            current_a = next(a, EMPTY_BAND)
-
-        while current_b is not EMPTY_BAND:
-            bands.append(operation(current_b, EMPTY_BAND))
-            current_b = next(b, EMPTY_BAND)
-
-        return bands
+        return merged
 
     def __repr__(self):
         attrs = ', '.join(
