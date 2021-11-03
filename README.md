@@ -8,34 +8,34 @@ Say one has a list of windows that may or may not overlap, and one wants to draw
 Ideally, we don't draw parts of windows that are covered by other windows:
 
 ```
-    +------------+
-    |            |
-    |        +-----------+
-    |        |     a     |
-    |        +-----------+
+    +------------+   +--------+
+    |            |   |        |
+    |        +-----------+    |
+    |        |     a     |    |
+    |        +-----------+----+
     |            |
     +------------+
 ```
 
-After `a` is drawn, we need to represent the area `b`:
+After `a` is drawn, we need to represent the area that is the union of `b` and `c`:
 ```
-    +------------+
-    |            |
-    |        +---+
-    |   b    |
-    |        +---+
+    +------------+   +--------+
+    |            |   |        |
+    |        +---+   +---+    |
+    |   b    |           |    |
+    |        +---+       +----+
     |            |
     +------------+
 ```
 
 This is done by dividing the area into a series of mutually exclusive horizontal bands:
 ```
-    +------------+
-    |   band 1   |
-    |--------+---+
-    | band 2 |
-    |--------+---+
-    |   band 3   |
+    +------------+   +--------+
+    |            |   |        |
+    +--------+---+   +---+----+
+    | a      | b         | c  | d   <- 2nd band with walls at a, b, c, d.
+    +--------+---+       +----+
+    |            |
     +------------+
 ```
 
