@@ -12,6 +12,10 @@ class Band:
         self.topbottom = topbottom
         self.walls = walls
 
+    @classmethod
+    def from_rect(cls, rect: Rect):
+        return cls(rect.topbottom, [*rect.leftright])
+
     @property
     def top(self):
         return self.topbottom.start
