@@ -20,7 +20,7 @@ Ideally, we don't draw parts of windows that are covered by other windows:
 After `a` is drawn, we need to represent the area that is the union of `b` and `c`:
 ```
     +------------+   +--------+
-    |            |   |        |
+    |            |   |    c   |
     |        +---+   +---+    |
     |   b    |           |    |
     |        +---+       +----+
