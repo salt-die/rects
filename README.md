@@ -44,7 +44,7 @@ A `Region` is a list of sorted, mutually exclusive bands.
 
 Using `rects`
 ------------
-To use rects, just construct an initial `Region`, `r`, from some rect and iteratively
+To use rects, construct an initial `Region`, `r`, from some rect and iteratively
 `union`, `intersect`, `subtract`, or `xor` `r` with other rects:
 ```py
 In [1]: from rects import *
