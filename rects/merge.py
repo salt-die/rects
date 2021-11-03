@@ -15,8 +15,14 @@ def merge(a, b, operation):
 
     walls = [ ]
 
-    while current_a is not None and current_b is not None:
-        threshold = min(current_a, current_b)
+    while current_a is not None or current_b is not None:
+        match (current_a, current_b):
+            case (None, _):
+                threshold = current_b
+            case (_, None):
+                threshold = current_a
+            case _:
+                threshold = min(current_a, current_b)
 
         if current_a == threshold:
             inside_a ^= True
@@ -29,23 +35,5 @@ def merge(a, b, operation):
         if operation(inside_a, inside_b) != inside_region:
             inside_region ^= True
             walls.append(threshold)
-
-    while current_a is not None:
-        inside_a ^= True
-
-        if operation(inside_a, inside_b) != inside_region:
-            inside_region ^= True
-            walls.append(current_a)
-
-        current_a = next(a, None)
-
-    while current_b is not None:
-        inside_b ^= True
-
-        if operation(inside_a, inside_b) != inside_region:
-            inside_region ^= True
-            walls.append(current_b)
-
-        current_b = next(b, None)
 
     return walls
