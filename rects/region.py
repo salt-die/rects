@@ -12,20 +12,27 @@ class Region:
     """
     __slots__ = 'bands',
 
-    def __init__(self, bands: list[Band] | None=None):
-        self.bands = bands or [ Band(Interval(-inf, inf), [-inf, inf]) ]
-        self._coalesce()
+    def __init__(self, extent: Rect=Rect(Interval(-inf, inf), Interval(-inf, inf))):
+        self.bands = [ Band.from_rect(extent) ]
+
+    @classmethod
+    def from_bands(cls, bands):
+        region = cls()
+        region.bands = bands
+        region._coalesce()
+        return region
 
     def __and__(self, rect: Rect):
-        rect_bands = self._reband(rect)
-
-        r = Region(
-            self._merge(rect_bands, lambda a, b: a & b)
+        region = Region.from_bands(
+            self._merge(
+                self._reband(rect),
+                lambda a, b: a & b,
+            )
         )
 
         self._coalesce()
 
-        return r
+        return region
 
 
     def __iand__(self, rect: Rect):
@@ -38,15 +45,16 @@ class Region:
         return self
 
     def __or__(self, rect: Rect):
-        rect_bands = self._reband(rect)
-
-        r = Region(
-            self._merge(rect_bands, lambda a, b: a | b)
+        region = Region.from_bands(
+            self._merge(
+                self._reband(rect),
+                lambda a, b: a | b,
+            )
         )
 
         self._coalesce()
 
-        return r
+        return region
 
     def __ior__(self, rect: Rect):
         self.bands = self._merge(
@@ -58,15 +66,16 @@ class Region:
         return self
 
     def __sub__(self, rect: Rect):
-        rect_bands = self._reband(rect)
-
-        r =  Region(
-            self._merge(rect_bands, lambda a, b: a - b)
+        region = Region.from_bands(
+            self._merge(
+                self._reband(rect),
+                lambda a, b: a - b,
+            )
         )
 
         self._coalesce()
 
-        return r
+        return region
 
     def __isub__(self, rect: Rect):
         self.bands = self._merge(
@@ -78,15 +87,16 @@ class Region:
         return self
 
     def __xor__(self, rect: Rect):
-        rect_bands = self._reband(rect)
-
-        r = Region(
-            self._merge(rect_bands, lambda a, b: a ^ b)
+        region = Region.from_bands(
+            self._merge(
+                self._reband(rect),
+                lambda a, b: a ^ b,
+            )
         )
 
         self._coalesce()
 
-        return r
+        return region
 
     def __ixor__(self, rect: Rect):
         self.bands = self._merge(
