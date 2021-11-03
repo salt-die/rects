@@ -116,7 +116,11 @@ class Region:
         i = 0
         while i < len(bands) - 1:
             a, b = bands[i], bands[i + 1]
-            if a.topbottom.joins(b.topbottom) and a.walls == b.walls:
+            if not a.walls:
+                bands.pop(i)
+            elif not b.walls:
+                bands.pop(i + 1)
+            elif a.topbottom.joins(b.topbottom) and a.walls == b.walls:
                 a.topbottom = Interval(a.top, b.bottom)
                 bands.pop(i + 1)
             else:
