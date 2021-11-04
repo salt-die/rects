@@ -4,8 +4,8 @@ A library for unions, intersections, subtractions, and xors of rectangles (for m
 
 Regions
 -------
-Say one has a list of windows that may or may not overlap, and one wants to draw them efficiently.
-Ideally, we don't draw parts of windows that are covered by other windows:
+Given a list of overlapping windows, how can they be efficiently rendered?
+Ideally, areas of windows covered by other windows are never drawn:
 
 ```
     +------------+   +--------+
@@ -17,7 +17,7 @@ Ideally, we don't draw parts of windows that are covered by other windows:
     +------------+
 ```
 
-After `a` is drawn, we need to represent the area that is the union of `b` and `c`:
+But how to represent the above area after subtracting `a`?
 ```
     +------------+   +--------+
     |            |   |    c   |
@@ -28,7 +28,7 @@ After `a` is drawn, we need to represent the area that is the union of `b` and `
     +------------+
 ```
 
-This is done by dividing the area into a series of mutually exclusive horizontal bands:
+One method is to divide the area into a series of mutually exclusive horizontal bands:
 ```
     +------------+   +--------+
     |            |   |        |
