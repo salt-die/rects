@@ -175,6 +175,14 @@ class Region:
 
         return merged
 
+    @property
+    def rects(self):
+        """
+        Yield all rects that make up the region.
+        """
+        for band in self.bands:
+            yield from band.rects
+
     def __repr__(self):
         attrs = ', '.join(
             f'{attr}={getattr(self, attr)}'
