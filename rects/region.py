@@ -39,7 +39,7 @@ def _merge(op: BoolOp, a: list[int], b: list[int]) -> list[int]:
     return walls
 
 
-@dataclass
+@dataclass(slots=True)
 class Rect:
     y: int
     x: int
@@ -47,7 +47,7 @@ class Rect:
     width: int
 
 
-@dataclass
+@dataclass(slots=True)
 class Band:
     y1: int
     y2: int
@@ -58,7 +58,7 @@ class Band:
             raise ValueError(f"Invalid Band: y1 ({self.y1}) is not smaller than y2 ({self.y2})")
 
 
-@dataclass
+@dataclass(slots=True)
 class Region:
     """
     Collection of mutually exclusive bands.
