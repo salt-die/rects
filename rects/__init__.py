@@ -1,4 +1,3 @@
-from .data_structures import Interval, Rect
-from .region import Region
+from .region import Region, Rect
 
-__all__ = "Interval", "Rect", "Region",
+__all__ = "Rect", "Region"
