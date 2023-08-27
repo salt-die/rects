@@ -105,7 +105,7 @@ class Region:
                     bands.append(Band(scanline, r.y2, _merge(op, r.walls, _NO_WALLS)))
                     scanline = r.y2
                     i += 1
-                elif s.y1 <= r.y2 and r.y2 < s.y2:
+                elif r.y2 < s.y2:
                     if scanline < s.y1:
                         ## ---------------
                         ## - - - - - - - - scanline
@@ -160,7 +160,7 @@ class Region:
                     bands.append(Band(scanline, s.y2, _merge(op, _NO_WALLS, s.walls)))
                     scanline = s.y2
                     j += 1
-                elif r.y1 <= s.y2 and s.y2 < r.y2:
+                elif s.y2 < r.y2:
                     if scanline < r.y1:
                         ## ~~~~~~~~~~~~~~~
                         ## - - - - - - - - scanline
