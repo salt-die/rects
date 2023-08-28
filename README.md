@@ -49,11 +49,12 @@ To use rects, construct an initial `Region`, `r`, from some rect and iteratively
 ```py
 >>> from rects import *
 >>> r = Region.from_rect(Rect(0, 0, 100, 200))
->>> r
-Region(bands=[Band(y1=0, y2=100, walls=[0, 200])])
 >>> s = Region.from_rect(Rect(10, 25, 40, 75))
 >>> t = Region.from_rect(Rect(45, 75, 50, 125))
->>> r - s - t
+>>> r
+Region(bands=[Band(y1=0, y2=100, walls=[0, 200])])
+>>> v = r - s - t
+>>> v
 Region(bands=[
     Band(y1=0, y2=10, walls=[0, 200]),
     Band(y1=10, y2=45, walls=[0, 25, 100, 200]),
@@ -61,7 +62,7 @@ Region(bands=[
     Band(y1=50, y2=95, walls=[0, 75]),
     Band(y1=95, y2=100, walls=[0, 200])
 ])
->>> list(_.rects())
+>>> list(v.rects())
 [
     Rect(y=0, x=0, height=10, width=200),
     Rect(y=10, x=0, height=35, width=25),
@@ -70,4 +71,6 @@ Region(bands=[
     Rect(y=50, x=0, height=45, width=75),
     Rect(y=95, x=0, height=5, width=200)
 ]
+>>> v.bbox
+Rect(y=0, x=0, height=100, width=200)
 ```
