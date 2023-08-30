@@ -1,28 +1,30 @@
 # rects
 
-A library for unions, intersections, subtractions, and xors of rectangles (for managing windows).
+A library for unions, intersections, subtractions, and xors of rectangles.
+
+The result of set operations on two rects are shown by the green regions below:
+
+![rects](rects.gif)
 
 Regions
 -------
-Given a list of overlapping windows, how can they be efficiently rendered?
-Ideally, areas of windows covered by other windows are never drawn:
-
+Let's say we have the following rects:
 ```
     +------------+   +--------+
-    |            |   |        |
+    |            |   |    B   |
     |        +-----------+    |
-    |        |     a     |    |
+    |    A   |     C     |    |
     |        +-----------+----+
     |            |
     +------------+
 ```
 
-But how to represent the above area after subtracting `a`?
+And we want to represent the region `A + B - C`:
 ```
     +------------+   +--------+
-    |            |   |    c   |
+    |            |   |        |
     |        +---+   +---+    |
-    |   b    |           |    |
+    |        |           |    |
     |        +---+       +----+
     |            |
     +------------+
