@@ -1,5 +1,7 @@
 # rects
 
+[![Tests](https://github.com/salt-die/rects/actions/workflows/run-tests.yaml/badge.svg)](https://github.com/salt-die/rects/actions/workflows/run-tests.yaml)
+
 A library for unions, intersections, subtractions, and xors of rectangles.
 
 The result of set operations on two rects are shown by the green regions below:
