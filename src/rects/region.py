@@ -2,16 +2,13 @@ from dataclasses import dataclass, field
 from operator import and_, or_, xor
 from typing import Callable, Iterator, Self
 
-_NO_WALLS = []  # We keep around an empty list to pass to _merge.
-BoolOp = Callable[[bool, bool], bool]
-
 
 def sub(a: bool, b: bool) -> bool:
     """`a` and not `b`"""
     return a and not b
 
 
-def _merge(op: BoolOp, a: list[int], b: list[int]) -> list[int]:
+def _merge(a: list[int], b: list[int], op: Callable[[bool, bool], bool]) -> list[int]:
     """Merge the walls of two bands given a set operation."""
     i = j = 0
     inside_a = inside_b = inside_region = False
@@ -37,12 +34,12 @@ def _merge(op: BoolOp, a: list[int], b: list[int]) -> list[int]:
     return walls
 
 
-@dataclass(slots=True)
+@dataclass(slots=True, frozen=True)
 class Rect:
-    y: int
     x: int
-    height: int
+    y: int
     width: int
+    height: int
 
 
 @dataclass(slots=True)
@@ -79,7 +76,7 @@ class Region:
             else:
                 i += 1
 
-    def _merge_regions(self, other: Self, op: BoolOp) -> Self:
+    def _merge_regions(self, other: Self, op: Callable[[bool, bool], bool]) -> Self:
         bands = []
         i = j = 0
         scanline = -float("inf")
@@ -97,7 +94,7 @@ class Region:
                     ##        ~~~~~~~~~~~~~~~
                     ##               s
                     ##        ~~~~~~~~~~~~~~~
-                    bands.append(Band(scanline, r.y2, _merge(op, r.walls, _NO_WALLS)))
+                    bands.append(Band(scanline, r.y2, _merge(r.walls, [], op)))
                     scanline = r.y2
                     i += 1
                 elif r.y2 < s.y2:
@@ -109,9 +106,7 @@ class Region:
                         ## ---------------
                         ##               s
                         ##        ~~~~~~~~~~~~~~~
-                        bands.append(
-                            Band(scanline, s.y1, _merge(op, r.walls, _NO_WALLS))
-                        )
+                        bands.append(Band(scanline, s.y1, _merge(r.walls, [], op)))
                     if s.y1 < r.y2:
                         ## ---------------
                         ##        r
@@ -119,7 +114,7 @@ class Region:
                         ## ---------------
                         ##               s
                         ##        ~~~~~~~~~~~~~~~
-                        bands.append(Band(s.y1, r.y2, _merge(op, r.walls, s.walls)))
+                        bands.append(Band(s.y1, r.y2, _merge(r.walls, s.walls, op)))
                     scanline = r.y2
                     i += 1
                 else:  # r.y2 >= s.y2
@@ -131,16 +126,14 @@ class Region:
                         ##               s
                         ##        ~~~~~~~~~~~~~~~
                         ## ---------------
-                        bands.append(
-                            Band(scanline, s.y1, _merge(op, r.walls, _NO_WALLS))
-                        )
+                        bands.append(Band(scanline, s.y1, _merge(r.walls, [], op)))
                     ## ---------------
                     ##        r
                     ##        ~-~-~-~-~-~-~-~ scanline
                     ##               s
                     ##        ~~~~~~~~~~~~~~~
                     ## ---------------
-                    bands.append(Band(s.y1, s.y2, _merge(op, r.walls, s.walls)))
+                    bands.append(Band(s.y1, s.y2, _merge(r.walls, s.walls, op)))
                     scanline = s.y2
                     if s.y2 == r.y2:
                         i += 1
@@ -156,7 +149,7 @@ class Region:
                     ##        _______________
                     ##               r
                     ##        _______________
-                    bands.append(Band(scanline, s.y2, _merge(op, _NO_WALLS, s.walls)))
+                    bands.append(Band(scanline, s.y2, _merge([], s.walls, op)))
                     scanline = s.y2
                     j += 1
                 elif s.y2 < r.y2:
@@ -168,9 +161,7 @@ class Region:
                         ## ~~~~~~~~~~~~~~~
                         ##               r
                         ##        ---------------
-                        bands.append(
-                            Band(scanline, r.y1, _merge(op, _NO_WALLS, s.walls))
-                        )
+                        bands.append(Band(scanline, r.y1, _merge([], s.walls, op)))
                     if r.y1 < s.y2:
                         ## ~~~~~~~~~~~~~~~
                         ##        s
@@ -178,7 +169,7 @@ class Region:
                         ## ~~~~~~~~~~~~~~~
                         ##               r
                         ##        ---------------
-                        bands.append(Band(r.y1, s.y2, _merge(op, r.walls, s.walls)))
+                        bands.append(Band(r.y1, s.y2, _merge(r.walls, s.walls, op)))
                     scanline = s.y2
                     j += 1
                 else:  # s.y2 >= r.y2
@@ -190,16 +181,14 @@ class Region:
                         ##               r
                         ##        ---------------
                         ## ~~~~~~~~~~~~~~~
-                        bands.append(
-                            Band(scanline, r.y1, _merge(op, _NO_WALLS, s.walls))
-                        )
+                        bands.append(Band(scanline, r.y1, _merge([], s.walls, op)))
                     ## ~~~~~~~~~~~~~~~
                     ##        s
                     ##        --------------- scanline
                     ##               r
                     ##        ---------------
                     ## ~~~~~~~~~~~~~~~
-                    bands.append(Band(r.y1, r.y2, _merge(op, r.walls, s.walls)))
+                    bands.append(Band(r.y1, r.y2, _merge(r.walls, s.walls, op)))
                     scanline = r.y2
                     if r.y2 == s.y2:
                         j += 1
@@ -209,14 +198,14 @@ class Region:
             r = self.bands[i]
             if scanline < r.y1:
                 scanline = r.y1
-            bands.append(Band(scanline, r.y2, _merge(op, r.walls, _NO_WALLS)))
+            bands.append(Band(scanline, r.y2, _merge(r.walls, [], op)))
             i += 1
 
         while j < len(other.bands):
             s = other.bands[j]
             if scanline < s.y1:
                 scanline = s.y1
-            bands.append(Band(scanline, s.y2, _merge(op, _NO_WALLS, s.walls)))
+            bands.append(Band(scanline, s.y2, _merge([], s.walls, op)))
             j += 1
 
         region = Region(bands=bands)
@@ -245,7 +234,7 @@ class Region:
             i = 0
             while i < len(band.walls):
                 yield Rect(
-                    band.y1, band.walls[i], height, band.walls[i + 1] - band.walls[i]
+                    band.walls[i], band.y1, band.walls[i + 1] - band.walls[i], height
                 )
                 i += 2
 
@@ -260,7 +249,7 @@ class Region:
         height = self.bands[-1].y2 - y
         width = max(band.walls[-1] for band in self.bands) - x
 
-        return Rect(y, x, height, width)
+        return Rect(x, y, width, height)
 
     @classmethod
     def from_rect(cls, rect: Rect) -> Self:
