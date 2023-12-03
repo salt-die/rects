@@ -227,6 +227,10 @@ class Region:
     def __xor__(self, other: Self) -> Self:
         return self._merge_regions(other, xor)
 
+    def __bool__(self):
+        """Region is truthy if it is non-empty."""
+        return len(self.bands) > 0
+
     def rects(self) -> Iterator[Rect]:
         """Yield all rects that make up the region."""
         for band in self.bands:
