@@ -48,13 +48,12 @@ A `Region` is a list of sorted, mutually exclusive bands.
 
 Using `rects`
 ------------
-To use rects, construct an initial `Region`, `r`, from some rect and iteratively
-`+`, `-`, `&`, or `^` with other regions:
+To use rects, construct an initial `Region` from some rect and iteratively `+`, `-`, `&`, or `^` with other regions:
 ```py
 >>> from rects import *
->>> r = Region.from_rect(Rect(0, 0, 100, 200))
->>> s = Region.from_rect(Rect(10, 25, 40, 75))
->>> t = Region.from_rect(Rect(45, 75, 50, 125))
+>>> r = Region.from_rect(Rect(0, 0, 200, 100))
+>>> s = Region.from_rect(Rect(25, 10, 75, 40))
+>>> t = Region.from_rect(Rect(75, 45, 125, 50))
 >>> r
 Region(bands=[Band(y1=0, y2=100, walls=[0, 200])])
 >>> v = r - s - t
@@ -68,13 +67,13 @@ Region(bands=[
 ])
 >>> list(v.rects())
 [
-    Rect(y=0, x=0, height=10, width=200),
-    Rect(y=10, x=0, height=35, width=25),
-    Rect(y=10, x=100, height=35, width=100),
-    Rect(y=45, x=0, height=5, width=25),
-    Rect(y=50, x=0, height=45, width=75),
-    Rect(y=95, x=0, height=5, width=200)
+    Rect(x=0, y=0, width=200, height=10),
+    Rect(x=0, y=10, width=25, height=35),
+    Rect(x=100, y=10, width=100, height=35),
+    Rect(x=0, y=45, width=25, height=5),
+    Rect(x=0, y=50, width=75, height=45),
+    Rect(x=0, y=95, width=200, height=5)
 ]
 >>> v.bbox
-Rect(y=0, x=0, height=100, width=200)
+Rect(x=0, y=0, width=200, height=100)
 ```
